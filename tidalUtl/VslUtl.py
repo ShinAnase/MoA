@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 
-#指定列のヒストグラムをtrain, testの順に並べる。
+#指定列のカテゴリカルな特徴量のヒストグラムをtrain, testの順に並べる。
 #in  :train data, testdata, visualizing column name
 #out :-
-def histColumn(dfTrain, dfTest, clmnNm):
+def histCategory(dfTrain, dfTest, clmnNm):
     figure = plt.figure(figsize=(12, 4))
     gs_master = GridSpec(nrows=1, ncols=2, figure=figure)
     
@@ -35,3 +35,20 @@ def histColumn(dfTrain, dfTest, clmnNm):
                 p.get_height() + 2, #height(y)
                 '{:1.2f}%'.format((p.get_height() / total) * 100),
                 ha='center')
+    
+    return
+
+
+# Index付き1次元データフレームのヒストグラム表現(横向き)
+def histCntHorizontal(cntWithIdx):
+    fig = plt.figure(figsize=(20,15))
+    sns.barplot(y = cntWithIdx.reset_index()["index"].astype(str), x = cntWithIdx.values)
+    plt.show()
+    return
+
+# Index付き1次元データフレームのヒストグラム表現(縦向き)
+def histCntVertical(cntWithIdx):
+    fig = plt.figure(figsize=(20,15))
+    sns.barplot(x = cntWithIdx.reset_index()["index"].astype(str), y = cntWithIdx.values)
+    plt.show()
+    return
