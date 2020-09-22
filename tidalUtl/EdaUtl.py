@@ -22,3 +22,22 @@ def chkDfIsNull(df):
         return ISNULL
     
     print("df is not NULL.")
+    return None
+
+
+#指定列の一意性の確認
+#in   :dataframe, column name
+#out  :stats(if unique, return None.)
+def chkUnique(df, clmnNm):
+    numUniq = df[clmnNm].nunique()
+    numObs = df.shape[0]
+    if numObs == numUniq:
+        print(clmnNm + " is unique.")
+        return None
+    else:
+        print(clmnNm + " is not unique.")
+        df = pd.DataFrame(df[clmnNm].value_counts()).reset_index()
+        df.columns = ["uni_" + clmnNm, "nunique"]
+        return df
+
+
