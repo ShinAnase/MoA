@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+from scipy.stats import norm
 
 cust_palt = ['#111d5e','#c70039','#37b448','#B43757', '#ffbd69', '#ffc93c','#FFFF33','#FFFACD',]
 
@@ -41,12 +42,15 @@ def histCategory(dfTrain, dfTest, clmnNm):
     return
 
 
+
 # Index付き1次元データフレームのヒストグラム表現(横向き)
 def histCntHorizontal(cntWithIdx):
     fig = plt.figure(figsize=(20,15))
     sns.barplot(y = cntWithIdx.reset_index()["index"].astype(str), x = cntWithIdx.values)
     plt.show()
     return
+
+
 
 # Index付き1次元データフレームのヒストグラム表現(縦向き)
 def histCntVertical(cntWithIdx):
@@ -55,12 +59,16 @@ def histCntVertical(cntWithIdx):
     plt.show()
     return
 
+
+
 # 1次元データフレームのカーネル密度推定法(KDE)による分布表現
 def distKde(distDf):
     fig = plt.figure(figsize=(20,10))
     sns.kdeplot(distDf.values, shade=True)
     plt.show()
     return
+
+
 
 #meta情報(mean, median, min, max, std, variance, skew(歪度), kurtosis(尖度))の分布
 #train, testのメタ情報の差異を調べる
@@ -112,3 +120,75 @@ def metaDist(dfTrain, dfTest):
     plt.show()
     
     return
+
+
+
+#dfのFeatureごとの分布図を表示。
+#オプションでdf2(test data)も並べられる。
+#rows×columnsをdfのfeature数に合わせること。
+def featDist(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt=None):
+    
+    fig, axes = plt.subplots(rows, columns, figsize=figsize, constrained_layout=True)
+    axes = axes.flatten()
+
+    for i, j in zip(cols, axes):
+        sns.distplot(
+                    df[i],
+                    ax=j,
+                    hist=False,
+                    #color='#111d5e',
+                    label=f'Train {i}',
+                    kde_kws={'alpha':0.9})        
+        
+        if dfOpt is not None:
+            sns.distplot(
+                        dfOpt[i],
+                        ax=j,
+                        hist=False,
+                        color = '#c70039',
+                        label=f'Test {i}',
+                        kde_kws={'alpha':0.7})
+        
+        j.set_title('Train Test Dist of {0}'.format(i.capitalize()), weight='bold')
+        fig.suptitle(f'{title}', fontsize=24, weight='bold')
+
+    return
+
+
+
+#dfの分布図と最尤法でfittingした正規分布を同時に表示。差異を調べる。
+#オプションでdf2(test data)も並べられる。
+#rows×columnsをdfのfeature数に合わせること。
+def featDistNorm(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt=None):
+    
+    fig, axes = plt.subplots(rows, columns, figsize=figsize, constrained_layout=True)
+    axes = axes.flatten()
+
+    for i, j in zip(cols, axes):
+        sns.distplot(
+                    df[i],
+                    ax=j,
+                    fit=norm,
+                    hist=False,
+                    #color='#111d5e',
+                    label=f'Train {i}',
+                    kde_kws={'alpha':0.9})        
+        
+        if dfOpt is not None:
+            sns.distplot(
+                        dfOpt[i],
+                        ax=j,
+                        hist=False,
+                        color = '#c70039',
+                        label=f'Test {i}',
+                        kde_kws={'alpha':0.7})
+        
+        (mu, sigma) = norm.fit(df[i])
+        j.set_title('Train Test Dist of {0} Norm Fit: $\mu=${1:.2g}, $\sigma=${2:.2f}'.format(i.capitalize(), mu, sigma), weight='bold')
+        fig.suptitle(f'{title}', fontsize=24, weight='bold')
+        
+    return
+
+
+
+ 
