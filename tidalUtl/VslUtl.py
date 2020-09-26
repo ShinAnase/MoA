@@ -159,7 +159,8 @@ def featDist(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt=Non
 #dfの分布図と最尤法でfittingした正規分布を同時に表示。差異を調べる。
 #オプションでdf2(test data)も並べられる。
 #rows×columnsをdfのfeature数に合わせること。
-def featDistNorm(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt=None):
+#範囲を設定する場合はdomain = [xmin, xmax, ymin, ymax] を設定すること
+def featDistNorm(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt=None, domain=None):
     
     fig, axes = plt.subplots(rows, columns, figsize=figsize, constrained_layout=True)
     axes = axes.flatten()
@@ -182,6 +183,9 @@ def featDistNorm(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt
                         color = '#c70039',
                         label=f'Test {i}',
                         kde_kws={'alpha':0.7})
+        
+        if domain is not None:
+            j.axis(domain)
         
         (mu, sigma) = norm.fit(df[i])
         j.set_title('Train Test Dist of {0} Norm Fit: $\mu=${1:.2g}, $\sigma=${2:.2f}'.format(i.capitalize(), mu, sigma), weight='bold')
