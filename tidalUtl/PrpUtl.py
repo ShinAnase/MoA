@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.decomposition import PCA
 
 #ラベルエンコード(文字列→数値)
 def Label_encode(train, test, feature_name):
@@ -30,3 +31,12 @@ def FillnaAndInsertIsnan(DataFrame, ColsAndFillVals):
             dfIsNan.insert(len(dfIsNan.columns), col + "_isnan", IsnanSeries)
         
     return DataFrame, dfIsNan
+
+
+#主成分解析によるデータの次元削減
+def tidalPCA(dfTrain, dfTest):
+    pca = PCA()
+    pca.fit(dfTrain.iloc[:,1:])
+    pca_train = pca.transform(dfTrain.iloc[:,1:])
+    pca_test = pca.transform(dfTest.iloc[:,1:])
+    return pca_train, pca_test
