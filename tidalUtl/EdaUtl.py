@@ -40,4 +40,15 @@ def chkUnique(df, clmnNm):
         df.columns = ["uni_" + clmnNm, "nunique"]
         return df
 
-
+    
+#dfの相関係数を計算。
+#絶対値として算出している。
+def cnptCorr(df):
+    #相関係数の導出 & series化　(相関係数の高い順にソートされている)
+    correlations = df.iloc[:,1:].corr().abs().unstack().sort_values(kind="quicksort",ascending=False).reset_index()
+    #同じ特徴同士の相関係数は排除
+    correlations = correlations[correlations['level_0'] != correlations['level_1']].reset_index(drop=True)
+    #列名をわかりやすく
+    correlations.columns = ['level_0', 'level_1', "corr"]
+    
+    return correlations

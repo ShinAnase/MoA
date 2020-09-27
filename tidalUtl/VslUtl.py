@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from scipy.stats import norm
 
@@ -194,5 +195,20 @@ def featDistNorm(df, cols, rows=3, columns=3, figsize=(30,25), title=None, dfOpt
     return
 
 
-
- 
+#相関関係のヒートマップを表示
+#in: df.corr()で作られたデータフレーム
+def corrHeatMap(correlation):
+    mask = np.triu(correlation)
+    plt.figure(figsize=(30, 12))
+    sns.heatmap(correlation,
+                mask=mask,
+                annot=True,
+                fmt='.3f',
+                cmap='Wistia',
+                linewidths=0.05,
+                cbar=True)
+    
+    
+    plt.title('Features with Highest Correlations',  weight='bold')
+    plt.show()
+    return
