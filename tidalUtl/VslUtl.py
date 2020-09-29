@@ -3,6 +3,7 @@ import seaborn as sns
 import numpy as np
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from scipy.stats import norm
+from sklearn.decomposition import PCA
 
 cust_palt = ['#111d5e','#c70039','#37b448','#B43757', '#ffbd69', '#ffc93c','#FFFF33','#FFFACD',]
 
@@ -211,4 +212,39 @@ def corrHeatMap(correlation):
     
     plt.title('Features with Highest Correlations',  weight='bold')
     plt.show()
+    return
+
+
+
+#PCAによるデータの次元削減
+#PCA結果のパレート図
+#in :dfTrain, dfTest, Rank:上位何位まで見せるか(barの数)
+def parateResultPCA(dfTrain, dfTest, Rank=None):
+    #主成分解析によるベクトル変換
+    pca = PCA()
+    pca.fit(dfTrain.iloc[:,1:])
+    pcaTrain = pca.transform(dfTrain.iloc[:,1:])
+    pcaTest = pca.transform(dfTest.iloc[:,1:])
+    
+    #パレート図
+    fig, ax = plt.subplots(1,1,figsize=(30, 12))
+    ax.plot(range(dfTrain.iloc[:,1:].shape[1]), pca.explained_variance_ratio_.cumsum(), linestyle='--',
+               drawstyle='steps-mid', color=cust_palt[1], label='Cumulative Explained Variance')
+    sns.barplot(np.arange(1,dfTrain.iloc[:,1:].shape[1]+1), pca.explained_variance_ratio_, alpha=0.85, color=cust_palt[0],
+                label='Individual Explained Variance', ax=ax)
+    ax.set_ylabel('Explained Variance Ratio', fontsize = 14)
+    
+    #範囲の制限([0,Rank-1,0,1])
+    if Rank is None:
+        ax.set_title('Explained Variance', fontsize = 20, weight='bold')
+        ax.set_xlabel('Number of Principal Components', fontsize = 14)
+        plt.legend(loc='center right', fontsize = 13);
+        ax.set_xticks([])
+    else:
+        ax.axis([0,Rank-1,0,1])
+        ax.set_title('First ' + str(Rank) + ' Explained Variances', fontsize = 20, weight='bold')
+        ax.set_xlabel('Number of Principal Components', fontsize = 14)
+    
+    plt.tight_layout()
+    
     return
