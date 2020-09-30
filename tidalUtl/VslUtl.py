@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 from scipy.stats import norm
 from sklearn.decomposition import PCA
+import plotly.express as px
 
 cust_palt = ['#111d5e','#c70039','#37b448','#B43757', '#ffbd69', '#ffc93c','#FFFF33','#FFFACD',]
 
@@ -247,4 +248,28 @@ def parateResultPCA(dfTrain, dfTest, Rank=None):
     
     plt.tight_layout()
     
+    return
+
+
+#pca成分の組み合わせ事のグラフを表示(対応するClmnによって色付け)
+#in :学習済みpcaモデル、pca変換後のtrain, trainの生データ, 色付けするcolumn名
+#※※　グラフはpcaTrainの列数^2の行列で表示されるのであらかじめ次元削減しておくこと ※※
+def distVarianceforClmn(pca, pcaTrain, Train, colorClmn):
+    total_var = pca.explained_variance_ratio_.sum() * 100
+    labels = {
+        str(i): f"PC {i+1} ({var:.1f}%)"
+        for i, var in enumerate(pca.explained_variance_ratio_ * 100)
+    }
+    
+    fig = px.scatter_matrix(
+        pcaTrain,
+        color=Train.iloc[:,1:][colorClmn],
+        dimensions=range(pcaTrain.shape[1]),
+        labels=labels,
+        title=f'Total Explained Variance: {total_var:.2f}% vs ' + colorClmn,
+        opacity=0.5,
+        color_discrete_sequence=cust_palt[:pcaTrain.shape[1]],
+    )
+    fig.update_traces(diagonal_visible=False)
+    fig.show()
     return
