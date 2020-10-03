@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import math
+from sklearn.metrics import plot_roc_curve, auc
 
 #データの中にnullがあるかどうか調べる。
 #in:   DataFrame
@@ -21,7 +24,7 @@ def chkDfIsNull(df):
         ISNULL = ISNULL.reset_index(drop=True)
         return ISNULL
     
-    print("df is not NULL.")
+    print("There is not NULL.")
     return None
 
 
@@ -52,3 +55,75 @@ def cnptCorr(df):
     correlations.columns = ['level_0', 'level_1', "corr"]
     
     return correlations
+
+
+#Adversarial Validation
+#入力モデルのfitting、AUCの算出、ROCの描画を行う。
+#In: 分類器のオブジェクト、CVオブジェクト(KFoldなど)、Feature、target(dataset_label)
+def adv_roc(estimators, cv, X, y):
+
+    fig, axes = plt.subplots(math.ceil(len(estimators) / 2), #ceil：整数へ切り上げ
+                             2,
+                             figsize=(16, 6))
+    axes = axes.flatten()
+    
+    #分類器の数だけ回る
+    for ax, estimator in zip(axes, estimators):
+        tprs = []
+        aucs = []
+        mean_fpr = np.linspace(0, 1, 100)
+
+        #Kfoldで分けた分だけ回る(デフォルトは3)
+        for i, (train, test) in enumerate(cv.split(X, y)):
+            #学習
+            estimator.fit(X.loc[train], y.loc[train])
+            #学習済みモデルとテストセットよりROCを評価。戻り値は予測結果とグラフのオブジェクト。
+            viz = plot_roc_curve(estimator,
+                                 X.loc[test],
+                                 y.loc[test],
+                                 name='ROC fold {}'.format(i),
+                                 alpha=0.3,
+                                 lw=1,
+                                 ax=ax)
+            #０～１を100分割した空間への点を補完する。
+            interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
+            interp_tpr[0] = 0.0
+            tprs.append(interp_tpr)  #y成分
+            aucs.append(viz.roc_auc) #AUC
+
+        ax.plot([0, 1], [0, 1],
+                linestyle='--',
+                lw=2,
+                color='r',
+                label='Chance',
+                alpha=.8)
+
+        #CV全体の平均と分散算出。
+        mean_tpr = np.mean(tprs, axis=0)
+        mean_tpr[-1] = 1.0
+        mean_auc = auc(mean_fpr, mean_tpr)
+        std_auc = np.std(aucs)
+        ax.plot(mean_fpr,
+                mean_tpr,
+                color='b',
+                label=r'Mean ROC (AUC = %0.2f $\pm$ %0.2f)' %
+                (mean_auc, std_auc),
+                lw=2,
+                alpha=.8)
+
+        std_tpr = np.std(tprs, axis=0)
+        tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+        tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+        ax.fill_between(mean_fpr,
+                        tprs_lower,
+                        tprs_upper,
+                        color='grey',
+                        alpha=.2,
+                        label=r'$\pm$ 1 std. dev.')
+
+        ax.set(xlim=[-0.02, 1.02],
+               ylim=[-0.02, 1.02],
+               title=f'{estimator.__class__.__name__} ROC for Adversarial Val.')
+        ax.legend(loc='lower right', prop={'size': 10})
+    plt.show()
+    return
