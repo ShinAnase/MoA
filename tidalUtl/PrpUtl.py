@@ -34,14 +34,15 @@ def FillnaAndInsertIsnan(DataFrame, ColsAndFillVals):
 
 
 #主成分解析によるデータの次元削減
-#in :dfTrain, dfTest, Dim:制限する次元数
+#in :dfTrain, dfTest, Dim:制限する次元数,random_state
 #out:PCA変換後Train, Test, 学習後pcaモデル
-def tidalPCA(dfTrain, dfTest, Dim=None):
+def tidalPCA(dfTrain, dfTest, random_state, Dim=None):
     if Dim is None:
-        pca = PCA()
+        pca = PCA(random_state = random_state)
     else:
-        pca = PCA(Dim)
-    pca.fit(dfTrain.iloc[:,1:])
-    pca_train = pca.transform(dfTrain.iloc[:,1:])
-    pca_test = pca.transform(dfTest.iloc[:,1:])
+        pca = PCA(n_components = Dim, random_state = random_state)
+    data = pd.concat([dfTrain, dfTest])
+    pca.fit(data)
+    pca_train = pca.transform(dfTrain)
+    pca_test = pca.transform(dfTest)
     return pca_train, pca_test, pca
