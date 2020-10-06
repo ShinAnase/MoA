@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from sklearn.decomposition import PCA
 
+
+from sklearn.preprocessing import LabelEncoder
 #ラベルエンコード(文字列→数値)
 def Label_encode(train, test, feature_name):
     for f in feature_name:
@@ -33,6 +33,7 @@ def FillnaAndInsertIsnan(DataFrame, ColsAndFillVals):
     return DataFrame, dfIsNan
 
 
+from sklearn.decomposition import PCA
 #主成分解析によるデータの次元削減
 #in :dfTrain, dfTest, Dim:制限する次元数,random_state
 #out:PCA変換後Train, Test, 学習後pcaモデル
@@ -46,3 +47,13 @@ def tidalPCA(dfTrain, dfTest, random_state, Dim=None):
     pca_train = pca.transform(dfTrain)
     pca_test = pca.transform(dfTest)
     return pca_train, pca_test, pca
+
+
+from sklearn.feature_selection import VarianceThreshold
+#各特徴量について、threshold(defaultは0.5)より低い分散をdropする。
+#In1  :df, trainとtest dataの連結が望ましい。(data = trainFeature.append(testFeature))
+#In2  :threshold, どのくらいの大きさの分散までdropするか。(defaultは0.5)
+def tidalVarianceThrs(df, threshold=0.5):
+    var_thresh = VarianceThreshold(threshold=threshold)
+    dfTransformed = var_thresh.fit_transform(df)
+    return dfTransformed
