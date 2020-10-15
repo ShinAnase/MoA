@@ -66,7 +66,7 @@ def tidalPCA(dfTrain, dfTest, random_state, Dim=None):
 
 
 
-#各特徴量について、threshold(defaultは0.5)より低い分散をdropする。
+#threshold(defaultは0.5)より低い分散である特徴量をdropする。
 #In1  :df, trainとtest dataの連結が望ましい。(data = trainFeature.append(testFeature))
 #In2  :threshold, どのくらいの大きさの分散までdropするか。(defaultは0.5)
 def tidalVarianceThrs(df, threshold=0.5):
