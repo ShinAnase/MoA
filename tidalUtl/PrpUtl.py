@@ -106,6 +106,7 @@ def get_tail_label(df: pd.DataFrame, ql=[0.05, 1.]) -> list:
     ターゲットの頻度を分布として扱い、分位パラメータ(default:[0.05, 1.])の外に出たターゲットを返却する。
     """
     irlbl = df.sum(axis=0)
+    #print(irlbl)
     irlbl = irlbl[(irlbl > irlbl.quantile(ql[0])) & ((irlbl < irlbl.quantile(ql[1])))]  # Filtering
     irlbl = irlbl.max() / irlbl
     threshold_irlbl = irlbl.median()
