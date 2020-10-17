@@ -180,7 +180,7 @@ def MLSMOTE(X, y, n_sample, neigh=5):
         neighbor = random.choice(indices2[reference, 1:])
         
         all_point = indices2[reference]
-        nn_df = y[y.index.isin(all_point)] #参照業に近いインデックスのターゲット
+        nn_df = y[y.index.isin(all_point)] #参照行に近いインデックスのターゲット
         ser = nn_df.sum(axis = 0, skipna = True) #各ターゲットの和
         #各ターゲットに一つでも陽(1)が入ってれば、そのターゲット列にフラグを立てる。⇨生成データのターゲットとする。
         target[i] = np.array([1 if val > 0 else 0 for val in ser])
