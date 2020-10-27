@@ -67,7 +67,7 @@ def histCntVertical(cntWithIdx):
 # 1次元データフレームのカーネル密度推定法(KDE)による分布表現
 def distKde(distDf):
     fig = plt.figure(figsize=(20,10))
-    sns.kdeplot(distDf.values, shade=True)
+    sns.kdeplot(distDf.values.reshape(1, len(distDf))[0], shade=True)
     plt.show()
     return
 

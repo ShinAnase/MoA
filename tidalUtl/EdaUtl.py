@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import plot_roc_curve, auc
 
+
 #データの中にnullがあるかどうか調べる。
 #in:   DataFrame
 #out:  Dataframe(nullのあるcolumnNM, count)

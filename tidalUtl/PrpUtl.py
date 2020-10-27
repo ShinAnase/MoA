@@ -6,6 +6,7 @@ from sklearn.feature_selection import VarianceThreshold
 import random
 from sklearn.datasets import make_classification
 from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import QuantileTransformer
 
 
 
@@ -194,3 +195,31 @@ def MLSMOTE(X, y, n_sample, neigh=5):
     new_X = pd.DataFrame(new_X, columns=X.columns)
     target = pd.DataFrame(target, columns=y.columns)
     return new_X, target
+
+
+
+def rankGauss(dfTrain, dfTest=None, n_quantiles=100, random_state=0):
+    #transformer定義
+    transformer = QuantileTransformer(n_quantiles=n_quantiles, random_state=random_state, output_distribution="normal")
+    
+    #データ数, 列名
+    vec_len = len(dfTrain.values)
+    clmnNmTrain = dfTrain.columns.values[0]
+    if dfTest is not None:
+        vec_len_test = len(dfTest.values)
+        clmnNmTest = dfTest.columns.values[0]
+    
+    #fitting
+    raw_vec = dfTrain.values.reshape(vec_len, 1)
+    transformer.fit(raw_vec)
+    
+    #変換
+    dfTrain = transformer.transform(raw_vec).reshape(1, vec_len)[0]
+    if dfTest is not None:
+        raw_vec_test = dfTest.values.reshape(vec_len_test, 1)
+        dfTest = transformer.transform(raw_vec_test).reshape(1, vec_len_test)[0]
+    
+    if dfTest is not None:
+        return pd.DataFrame(dfTrain, columns=[clmnNmTrain]), pd.DataFrame(dfTest, columns=[clmnNmTest])
+    else:
+        return pd.DataFrame(dfTrain, columns=[clmnNmTrain]), None
