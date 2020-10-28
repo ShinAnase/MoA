@@ -198,6 +198,10 @@ def MLSMOTE(X, y, n_sample, neigh=5):
 
 
 
+#任意の分布を持つデータをgauss分布に寄せていく。
+#Input: df(trainであることが多い), testdf(定義しなければスキップ),
+#       n_quantiles:計算の細かさ(累積分布の積分計算時のdxの小ささ)。値が大きくなるほど大げさにガウス分布に近づける。
+#       random_state:ランダム係数
 def rankGauss(dfTrain, dfTest=None, n_quantiles=100, random_state=0):
     #transformer定義
     transformer = QuantileTransformer(n_quantiles=n_quantiles, random_state=random_state, output_distribution="normal")
