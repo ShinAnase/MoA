@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import math
 from sklearn.metrics import plot_roc_curve, auc
+from sklearn.cluster import KMeans
 
 
 #データの中にnullがあるかどうか調べる。
@@ -128,3 +129,23 @@ def adv_roc(estimators, cv, X, y):
         ax.legend(loc='lower right', prop={'size': 10})
     plt.show()
     return
+
+
+
+#Train,Testデータを一緒にしてKmeansにfitさせ、それぞれのデータにクラスターラベルを付与する。
+#Input
+#Train, test:データ。
+#features:cluster分析対象のcolumn名の配列。
+#n_clusters: クラスターの数。1クラスターにつき20レコードが割り振られるのが望ましい。
+#kind:クラスタラベルのcolumn名(デフォルトは"clusterLabel")。
+#seed:デフォルトは0。
+#Output
+#クラスタラベル付きのTrain,Test Data
+def createClusterKmeans(train, test, features, n_clusters, kind = 'clusterLabel', seed = 0):
+    train_ = train[features].copy()
+    test_ = test[features].copy()
+    data = pd.concat([train_, test_], axis = 0)
+    kmeans = KMeans(n_clusters = n_clusters, random_state = seed).fit(data)
+    train[f'{kind}'] = kmeans.labels_[:train.shape[0]]
+    test[f'{kind}'] = kmeans.labels_[train.shape[0]:]
+    return train, test
